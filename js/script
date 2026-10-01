@@ -1,0 +1,327 @@
+/*=========================================
+  BURDA YURII
+  script.js
+=========================================*/
+
+/*==========================
+  Плавний скрол
+==========================*/
+
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+
+    link.addEventListener("click", function(e){
+
+        e.preventDefault();
+
+        const id = this.getAttribute("href");
+
+        const section = document.querySelector(id);
+
+        if(section){
+
+            section.scrollIntoView({
+
+                behavior:"smooth",
+
+                block:"start"
+
+            });
+
+        }
+
+    });
+
+});
+
+
+/*==========================
+  Header при скролі
+==========================*/
+
+const header = document.querySelector(".header");
+
+window.addEventListener("scroll",()=>{
+
+    if(window.scrollY>40){
+
+        header.classList.add("header-scroll");
+
+    }else{
+
+        header.classList.remove("header-scroll");
+
+    }
+
+});
+
+
+/*==========================
+  Кнопка Наверх
+==========================*/
+
+const topButton = document.createElement("div");
+
+topButton.className="to-top";
+
+topButton.innerHTML="↑";
+
+document.body.appendChild(topButton);
+
+topButton.style.opacity="0";
+
+topButton.style.pointerEvents="none";
+
+window.addEventListener("scroll",()=>{
+
+    if(window.scrollY>500){
+
+        topButton.style.opacity="1";
+
+        topButton.style.pointerEvents="auto";
+
+    }else{
+
+        topButton.style.opacity="0";
+
+        topButton.style.pointerEvents="none";
+
+    }
+
+});
+
+topButton.onclick=()=>{
+
+    window.scrollTo({
+
+        top:0,
+
+        behavior:"smooth"
+
+    });
+
+};
+
+
+/*==========================
+  Активне меню
+==========================*/
+
+const sections=document.querySelectorAll("section");
+
+const menuLinks=document.querySelectorAll("nav a");
+
+window.addEventListener("scroll",()=>{
+
+    let current="";
+
+    sections.forEach(section=>{
+
+        const top=section.offsetTop-150;
+
+        const height=section.offsetHeight;
+
+        if(scrollY>=top){
+
+            current=section.getAttribute("id");
+
+        }
+
+    });
+
+    menuLinks.forEach(link=>{
+
+        link.classList.remove("active");
+
+        if(link.getAttribute("href")==="#"+current){
+
+            link.classList.add("active");
+
+        }
+
+    });
+
+});
+
+
+/*==========================
+  Анімація появи
+==========================*/
+
+const observer=new IntersectionObserver(entries=>{
+
+    entries.forEach(entry=>{
+
+        if(entry.isIntersecting){
+
+            entry.target.classList.add("show");
+
+        }
+
+    });
+
+},{
+    threshold:.15
+});
+
+document.querySelectorAll(
+".service-card,.advantage-card,.step,.price-card,.review-card,.compare-card,.about-image,.about-content"
+).forEach(el=>{
+
+    el.classList.add("hidden");
+
+    observer.observe(el);
+
+});
+
+/*=========================================
+  MOBILE MENU
+=========================================*/
+
+const burger = document.querySelector(".burger");
+const nav = document.querySelector("nav");
+
+if (burger) {
+
+    burger.addEventListener("click", () => {
+
+        burger.classList.toggle("active");
+
+        nav.classList.toggle("open");
+
+    });
+
+    document.querySelectorAll("nav a").forEach(link => {
+
+        link.addEventListener("click", () => {
+
+            burger.classList.remove("active");
+
+            nav.classList.remove("open");
+
+        });
+
+    });
+
+}
+
+/*=========================================
+  COUNTERS
+=========================================*/
+
+const counters = document.querySelectorAll(".hero-stats h3");
+
+const counterObserver = new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+        if (!entry.isIntersecting) return;
+
+        const el = entry.target;
+
+        const text = el.textContent;
+
+        const target = parseInt(text.replace(/\D/g, ""));
+
+        const suffix = text.replace(/[0-9]/g, "");
+
+        let current = 0;
+
+        const step = Math.max(1, Math.ceil(target / 50));
+
+        const timer = setInterval(() => {
+
+            current += step;
+
+            if (current >= target) {
+
+                current = target;
+
+                clearInterval(timer);
+
+            }
+
+            el.textContent = current + suffix;
+
+        }, 25);
+
+        counterObserver.unobserve(el);
+
+    });
+
+}, { threshold: .6 });
+
+counters.forEach(counter => counterObserver.observe(counter));
+
+/*=========================================
+  LAZY IMAGES
+=========================================*/
+
+document.querySelectorAll("img").forEach(img => {
+
+    img.loading = "lazy";
+
+});
+
+/*=========================================
+  LIGHTBOX
+=========================================*/
+
+const images = document.querySelectorAll(".gallery-grid img");
+
+const lightbox = document.createElement("div");
+
+lightbox.className = "lightbox";
+
+lightbox.innerHTML = `
+    <span class="lightbox-close">&times;</span>
+    <img>
+`;
+
+document.body.appendChild(lightbox);
+
+const lightboxImage = lightbox.querySelector("img");
+
+images.forEach(image => {
+
+    image.addEventListener("click", () => {
+
+        lightboxImage.src = image.src;
+
+        lightbox.classList.add("show");
+
+        document.body.style.overflow = "hidden";
+
+    });
+
+});
+
+lightbox.addEventListener("click", e => {
+
+    if (
+        e.target === lightbox ||
+        e.target.classList.contains("lightbox-close")
+    ) {
+
+        lightbox.classList.remove("show");
+
+        document.body.style.overflow = "";
+
+    }
+
+});
+
+/*=========================================
+  ESC CLOSE
+=========================================*/
+
+window.addEventListener("keydown", e => {
+
+    if (e.key === "Escape") {
+
+        lightbox.classList.remove("show");
+
+        document.body.style.overflow = "";
+
+    }
+
+});
